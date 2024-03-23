@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(
           title: const Text('My ListView App'),
+          backgroundColor: Colors.blueAccent,
         ),
         body: ListView.builder(
           itemCount: items.length,
