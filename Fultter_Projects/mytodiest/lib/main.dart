@@ -1,5 +1,23 @@
 import 'package:flutter/material.dart';
 
+class Todo {
+  Icon icon;
+  String category;
+  String description;
+  bool done;
+
+  Todo(this.icon, this.category, this.description, this.done);
+}
+
+List<Todo> _todos = [
+  Todo(const Icon(Icons.today_rounded), 'Learning',
+      'Learn Dart programming language', false),
+  Todo(const Icon(Icons.today_rounded), 'Learning',
+      'Learn to build application using Flutter', false),
+  Todo(const Icon(Icons.today_rounded), 'Practice',
+      'Practice building robust app with Flutter', false),
+];
+
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
@@ -13,73 +31,86 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.light,
         primaryColor: Colors.blueAccent,
       ),
-      home: const MyTodoHome(),
+      home: TodosScreen(todos: _todos),
     );
   }
 }
 
-class MyTodoHome extends StatefulWidget {
-  const MyTodoHome({super.key});
+class TodosScreen extends StatefulWidget {
+  const TodosScreen({super.key, required this.todos});
+
+  final List<Todo> todos;
 
   @override
-  State<MyTodoHome> createState() => _MyTodoHomeState();
+  State<TodosScreen> createState() => _TodoScreenState();
 }
 
-class _MyTodoHomeState extends State<MyTodoHome> {
+class _TodoScreenState extends State<TodosScreen> {
   //Initialise todos list variable;
-  var _todos = [];
 
-  void _showTodoInputDialog() => {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            TextEditingController categoryController = TextEditingController();
-            TextEditingController bodyController = TextEditingController();
-            return AlertDialog(
-              title: const Text('Enter a task'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: categoryController,
-                    decoration:
-                        const InputDecoration(hintText: "Enter todo category"),
-                  ),
-                  TextField(
-                    controller: bodyController,
-                    decoration:
-                        const InputDecoration(hintText: "Enter todo action"),
-                  ),
-                ],
+  void _showTodoInputDialog() async {
+    final Todo? newTodo = await showDialog<Todo>(
+      context: context,
+      builder: (BuildContext context) {
+        String? category;
+        String? description;
+        // TextEditingController categoryController =
+        //     TextEditingController();
+        // TextEditingController bodyController = TextEditingController();
+        return AlertDialog(
+          title: const Text('Enter a task'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                // controller: categoryController,
+                onChanged: (value) => category = value,
+                decoration: const InputDecoration(
+                    labelText: 'Category', hintText: "Enter todo category"),
               ),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('Cancel'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-                TextButton(
-                  child: const Text('Save'),
-                  onPressed: () {
-                    setState(
-                      () {
-                        _todos.add({
-                          'icon': const Icon(Icons.today_rounded),
-                          "category": categoryController.text,
-                          "body": bodyController.text,
-                          "done": false,
-                        });
-                      },
-                    );
-                    Navigator.of(context).pop();
-                  },
-                )
-              ],
-            );
-          },
-        )
-      };
+              TextField(
+                // controller: bodyController,
+                onChanged: (value) => description = value,
+                decoration: const InputDecoration(
+                    labelText: 'Description',
+                    hintText: "Enter todo description"),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            TextButton(
+              child: const Text('Save'),
+              onPressed: () {
+                if (category != null && description != null) {
+                  Navigator.pop(
+                      context,
+                      Todo(
+                        const Icon(Icons.today_rounded),
+                        category!,
+                        description!,
+                        false,
+                      ));
+                }
+              },
+            )
+          ],
+        );
+      },
+    );
+    if (newTodo != null) {
+      setState(
+        () {
+          _todos.add(newTodo);
+        },
+      );
+    }
+  }
 
   void _showEditDialog(index) {
     showDialog(
@@ -88,8 +119,8 @@ class _MyTodoHomeState extends State<MyTodoHome> {
         TextEditingController categoryController = TextEditingController();
         TextEditingController bodyController = TextEditingController();
 
-        categoryController.text = _todos[index]['category'];
-        bodyController.text = _todos[index]['body'];
+        categoryController.text = _todos[index].category;
+        bodyController.text = _todos[index].description;
 
         return AlertDialog(
           title: const Text('Edit task'),
@@ -127,8 +158,8 @@ class _MyTodoHomeState extends State<MyTodoHome> {
               onPressed: () {
                 setState(
                   () {
-                    _todos[index]['category'] = categoryController.text;
-                    _todos[index]['body'] = bodyController.text;
+                    _todos[index].category = categoryController.text;
+                    _todos[index].description = bodyController.text;
                   },
                 );
                 Navigator.of(context).pop();
@@ -153,32 +184,32 @@ class _MyTodoHomeState extends State<MyTodoHome> {
         itemBuilder: (context, index) {
           final item = _todos[index];
           return ListTile(
-            leading: item['icon'],
+            leading: item.icon,
             title: Text(
-              item['category'].toString(),
+              item.category.toString(),
               style: TextStyle(
-                decoration: item['done']
+                decoration: item.done
                     ? TextDecoration.lineThrough
                     : TextDecoration.none,
               ),
             ),
             subtitle: Text(
-              item['body'].toString(),
+              item.description.toString(),
               style: TextStyle(
-                decoration: item['done']
+                decoration: item.done
                     ? TextDecoration.lineThrough
                     : TextDecoration.none,
               ),
             ),
             trailing: Icon(
-              item['done']
+              item.done
                   ? Icons.check_box_outlined
                   : Icons.check_box_outline_blank_outlined,
             ),
             onTap: () {
               setState(
                 () {
-                  item['done'] = !item['done'];
+                  item.done = !item.done;
                 },
               );
             },
