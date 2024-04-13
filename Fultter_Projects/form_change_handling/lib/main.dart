@@ -28,24 +28,27 @@ class MyWidget extends StatefulWidget {
 }
 
 class _MyWidgetState extends State<MyWidget> {
-  final myController = TextEditingController();
+  final firstController = TextEditingController();
+  final secondController = TextEditingController();
   // INIT
   @override
-  void initState() {
-    super.initState();
-    myController.addListener(_printLatestValue);
-  }
+  // void initState() {
+  //   super.initState();
+  //   firstController.addListener(_printLatestValue);
+  //   secondController.addListener(_printLatestValue);
+  // }
 
   // DISPOSE
   @override
   void dispose() {
-    myController.dispose();
+    firstController.dispose();
+    secondController.dispose();
     super.dispose();
   }
 
-  void _printLatestValue() {
-    print('First text field: ${myController.text}');
-  }
+  // void _printLatestValue() {
+  //   print('First text field: ${firstController.text}');
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -61,16 +64,37 @@ class _MyWidgetState extends State<MyWidget> {
         child: SingleChildScrollView(
           child: Column(
             children: <Widget>[
+              const SizedBox(height: 8),
               TextFormField(
-                  controller: myController,
-                  decoration:
-                      const InputDecoration(labelText: 'Text Input One')),
+                  controller: firstController,
+                  decoration: const InputDecoration(labelText: 'Full Name')),
+              const SizedBox(height: 8),
               TextFormField(
-                decoration: const InputDecoration(labelText: 'Text Input Two'),
-                onChanged: (value) => {
-                  print('Second text field: $value'),
+                decoration: const InputDecoration(labelText: 'Emai;'),
+                controller: secondController,
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                child: const Text('Submit'),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('Full Name: ${firstController.text}'),
+                            const SizedBox(height: 8),
+                            Text('Email: ${secondController.text}'),
+                          ],
+                        ),
+                      );
+                    },
+                  );
                 },
-              )
+              ),
+              const SizedBox(height: 8),
             ],
           ),
         ),
